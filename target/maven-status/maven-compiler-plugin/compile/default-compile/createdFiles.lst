@@ -2,6 +2,7 @@ com\launchVisor\services\TaskService.class
 com\launchVisor\config\WebMvcConfiguration.class
 com\launchVisor\config\CORSFilter.class
 com\launchVisor\controllers\TaskController.class
+com\launchVisor\services\TaskExecutor$1.class
 com\launchVisor\services\TaskExecutor.class
 com\launchVisor\config\AppInit.class
 com\launchVisor\domain\Task.class
