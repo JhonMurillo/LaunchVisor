@@ -10,31 +10,31 @@ import org.springframework.stereotype.Component;
 
 import com.launchVisor.domain.Task;
 import com.launchVisor.domain.TaskStatus;
+import java.util.logging.Logger;
 
 @Component
 @Scope("singleton")
 public class TaskExecutor {
 
     private List<Task> pool = new LinkedList<>();
+    private static final Logger LOG = Logger.getLogger(TaskExecutor.class.getName());
 
     @PostConstruct
     public void initialize() {
-        Runnable taskPoolConsumer = () -> {
-            while (true) {
-                try {
-                    this.pool.stream()
-                            .filter(task -> task.isRunning() && task.getDuration() > 0)
-                            .forEach(task -> {
-                                task.decrementDuration();
-                            });
-
-                    this.pool.stream()
-                            .filter(task -> task.isRunning() && task.getDuration() == 0)
-                            .forEach(task -> task.setStatus(TaskStatus.SUCCESS));
-
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        Runnable taskPoolConsumer;
+        taskPoolConsumer = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        TaskExecutor.this.pool.stream().filter(task -> task.isRunning() && task.getDuration() > 0).forEach(task -> {
+                            task.decrementDuration();
+                        });
+                        TaskExecutor.this.pool.stream().filter(task -> task.isRunning() && task.getDuration() == 0).forEach(task -> task.setStatus(TaskStatus.SUCCESS));
+                        Thread.sleep(1000);
+                    }catch (InterruptedException e) {
+                        LOG.warning(e.getMessage());
+                    }
                 }
             }
         };
