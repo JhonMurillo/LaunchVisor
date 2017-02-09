@@ -14,11 +14,6 @@ import com.launchVisor.services.TaskService;
 @RequestScoped
 public class ComidaController {
 
-    @Autowired
-    private TaskService taskService;
 
-    public void startTasks(ActionEvent event) throws InterruptedException {
-        this.taskService.startIdleTasks();
-    }
 
 }
