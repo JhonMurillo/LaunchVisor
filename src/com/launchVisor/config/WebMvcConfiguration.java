@@ -1,5 +1,6 @@
 package com.launchVisor.config;
 
+import com.launchVisor.services.ComidaService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,5 +18,10 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
     @Bean
     public TaskService taskService() {
         return new TaskService();
+    }
+
+    @Bean
+    public ComidaService comidaService() {
+        return new ComidaService();
     }
 }

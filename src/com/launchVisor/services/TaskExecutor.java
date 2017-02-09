@@ -32,7 +32,7 @@ public class TaskExecutor {
                         });
                         TaskExecutor.this.pool.stream().filter(task -> task.isRunning() && task.getDuration() == 0).forEach(task -> task.setStatus(TaskStatus.SUCCESS));
                         Thread.sleep(1000);
-                    }catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         LOG.warning(e.getMessage());
                     }
                 }

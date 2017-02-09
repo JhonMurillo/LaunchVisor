@@ -1,38 +1,179 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:h="http://java.sun.com/jsf/html"  
-      xmlns:f="http://java.sun.com/jsf/core" ng-app="part1" ng-controller="RealtimeCtrl">
+      xmlns:h="http://java.sun.com/jsf/html"   ng-app="menu" ng-controller="MenuCtrl">
 
     <h:head>
-        <title>({{tasks.length}}) Tasks</title>
+        <title>({{comidas.length}}) MENU</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular.min.js"></script>
+        <script src=" http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"/>
+        <style>
+            #footericons {
+                text-align:center;
+                margin: 0 auto;
+                padding:10px;
+                bottom: 100px;
+                position: fixed;
+                width: 100%;
+            }
 
+            #footermsg{
+                text-align:center;
+                margin: 0 auto;
+                padding:10px;
+                bottom: 0px;
+                position: fixed;
+                width: 100%;
+                height: auto;
+                background-color: red;
+                font-size: 20px;
+                color: white;
+                font-weight: bold;
+            }
+            #footericons ul li,#footermsg div {
+                list-style-type: none;
+                text-align:center;
+                margin-left:5px;
+            }
+            #footericons ul li:hover{
+                -webkit-transition: all 1s ease-in-out;
+                -moz-transition: all 1s ease-in-out;
+                -ms-transition: all 1s ease-in-out;
+                -o-transition: all 1s ease-in-out;
+                transition: all 1s ease-in-out;
+                text-shadow: 10px 5px 5px #000;
+            } 
+        </style>
         <script>
-                    var part1 = angular.module("part1", []);
-                    part1.controller("RealtimeCtrl", function ($scope, $http, $timeout) {
-                        $scope.tasks = [];
+                    var menu = angular.module("menu", []);
+                    menu.controller("MenuCtrl", function ($scope, $http, $timeout, $filter) {
+                        $scope.comidas = [];
+                        $scope.mensajes = ["Restaurate El Fogon Olayero", "Bienvenidos Apreciados Clientes"];
+                        $scope.mostarAgotados = false;
+                        $scope.mostarMensaje = false;
+                        var num = 1;
 
-                        $scope.addTask = function () {
-                            $http.post("api/task", $scope.task)
+                        if (typeof (Storage) !== "undefined") {
+                            if (localStorage.getItem("mostarAgotados") === null) {
+                                localStorage.setItem("mostarAgotados", $scope.mostarAgotados);
+                            } else {
+                                if (localStorage.getItem("mostarAgotados") === "true") {
+                                    $scope.mostarAgotados = true;
+                                } else if (localStorage.getItem("mostarAgotados") === "false") {
+                                    $scope.mostarAgotados = false;
+                                } else {
+                                    $scope.mostarAgotados = localStorage.getItem("mostarAgotados");
+                                }
+                            }
+
+                            if (localStorage.getItem("mostarMensaje") === null) {
+                                localStorage.setItem("mostarMensaje", $scope.mostarMensaje);
+                            } else {
+                                if (localStorage.getItem("mostarMensaje") === "true") {
+                                    $scope.mostarMensaje = true;
+                                } else if (localStorage.getItem("mostarMensaje") === "false") {
+                                    $scope.mostarMensaje = false;
+                                } else {
+                                    $scope.mostarMensaje = localStorage.getItem("mostarMensaje");
+                                }
+                            }
+
+
+                            if (localStorage.getItem("mensajes") === null) {
+                                localStorage.setItem("mensajes", JSON.stringify($scope.mensajes));
+                            } else {
+                                $scope.mensajes = JSON.parse(localStorage.getItem("mensajes"));
+                            }
+                        } else {
+                            alert("Sorry, your browser does not support Web Storage...");
+                        }
+
+                        $scope.addComida = function () {
+                            $http.post("api/comida", $scope.comida)
                                     .success(function (data) {
-                                        $scope.task.duration = data;
+                                        $scope.comida = {};
                                     });
                         };
 
-                        $scope.getTasks = function () {
-                            $http.get("api/task")
+                        $scope.updateComida = function (comida) {
+                            $http.post("api/comida/update", comida.id)
                                     .success(function (data) {
-                                        $scope.tasks = data;
+                                        $scope.comida.duration = data;
+                                    });
+                        };
+
+                        $scope.getComidas = function () {
+                            $http.get("api/comida")
+                                    .success(function (data) {
+                                        $scope.comidas = data;
+                                    });
+                        };
+
+                        $scope.getComidasAgotados = function () {
+                            $http.get("api/comida/disponible")
+                                    .success(function (data) {
+                                        $scope.comidas = data;
+                                    });
+                        };
+
+                        $scope.deleteComidas = function () {
+                            $http.get("api/comida/delete")
+                                    .success(function (data) {
+                                        $scope.comidas = data;
                                     });
                         };
 
                         $scope.activateRealtime = function () {
-                            $scope.getTasks();
+                            $scope.fecha = $filter('date')(new Date(), "dd/MM/yyyy hh:mm:ss a");
+                            if ($scope.mostarAgotados) {
+                                $scope.getComidas();
+                            } else {
+                                $scope.getComidasAgotados();
+                            }
                             $timeout($scope.activateRealtime, 1000);
                         };
 
+                        $scope.clickCheck = function () {
+                            localStorage.setItem("mostarAgotados", $scope.mostarAgotados);
+                        };
+                        
+                        $scope.checkMensaje = function () {
+                            localStorage.setItem("mostarMensaje", $scope.mostarMensaje);
+                        };
+
+                        $scope.addMensaje = function () {
+                            $scope.mensajes.push($scope.mensaje);
+                            localStorage.setItem("mensajes", JSON.stringify($scope.mensajes));
+                            $scope.mensaje = "";
+                        };
+
+                        $scope.activateMensajes = function () {
+
+                            if (num - 1 === $scope.mensajes.length) {
+                                num = 1;
+                            }
+                            if ($scope.mensajes.length === 1) {
+                                $timeout($("#msg").fadeIn(1000));
+                                $("#msg").text($scope.mensajes[num - 1]);
+                                $timeout($scope.activateMensajes, 1000);
+                            }
+
+                            if ($scope.mensajes.length > num - 1) {
+                                $timeout($("#msg").fadeIn(1000));
+                                $("#msg").text($scope.mensajes[num - 1]);
+                                num++;
+                                $timeout($scope.activateMensajes, 10000);
+                                $timeout($scope.ocultar, 9000);
+                            }
+
+                        };
+
+                        $scope.ocultar = function () {
+                            $("#msg").fadeOut(1000);
+                        };
+
                         $scope.activateRealtime();
+                        $scope.activateMensajes();
 
                     });
 
@@ -41,27 +182,45 @@
 
     <h:body>
         <div  class="container">
-            <h1>Tasks</h1>
-            <h2>Add task</h2>
-            <h:form>
-                <label for="durationField">Duration (in seconds):</label>
-                <input type="number" id="durationField" class="form-control" ng-model="task.duration"/>
-                <button type="button" ng-click="addTask()" class="btn btn-success">Add task</button>
-                <button type="button" ng-click="getTasks()" class="btn btn-default">Refresh Tasks</button>
-                <button type="button" ng-click="activateRealtime()" class="btn btn-default">Activate Auto Refresh</button>
-                <h:commandButton actionListener="#{taskController.startTasks}" 
-                                 styleClass="btn btn-default"
-                                 value="Start Idle Tasks">
-                    <f:ajax execute="@form"/>
-                </h:commandButton>
-            </h:form>
+            <div id="result"></div>
+            <h1>Menu</h1>
+            <div id="fecha">{{fecha}}</div>
+            <h2>Agregar Mensaje</h2>
+            <form ng-submit="addMensaje()">
+                <div class="row">
+                    <label for="nombre">Mensaje</label>
+                    <input required="true" type="text" maxlength="50" id="mensaje" class="form-control" ng-model="mensaje"/>
+                    <label for="disponible">Mostrar Mensajes</label>
+                    <input  id="disponible" ng-change="checkMensaje()"  type="checkbox" ng-model="mostarMensaje"/><br/>
+                    <input  type="submit"  value="Agregar Mensaje" class="btn btn-success"/>
+                    <textArea ng-model="mensajes" readonly="" class="form-control" style="resize: horizontal"/>
+                </div>
+            </form>
+            
+            <h2>Agregar Comida</h2>
+            <form ng-submit="addComida()">
+                <div class="row">
+                    <label for="nombre">Nombre</label>
+                    <input required="true" type="text" maxlength="50" id="nombre" class="form-control text-uppercase" ng-model="comida.nombre"/>
+                    <label for="precio">Precio</label>
+                    <input required="true" type="number"  id="precio" class="form-control" ng-model="comida.precio"/>
+                    <label for="disponible">Mostrar Agotados</label>
+                    <input  id="disponible" ng-change="clickCheck()"  type="checkbox" ng-model="mostarAgotados"/><br/>
+                    <input  type="submit"  value="Agregar Comida" class="btn btn-success"/>
+                    <button type="button" ng-click="deleteComidas()" class="btn btn-danger">Borrar Comidas</button>
+                </div>
+            </form>
 
-            <h2>Listing</h2>
+            <h2>Comidas</h2>
             <ul class="list-group">
-                <li ng-repeat="curTask in tasks" class="list-group-item {{curTask.running ? 'active' : ''}}">
-                    {{curTask.name}} ({{curTask.status}})<span class="badge">{{curTask.duration}}</span>
+                <li ng-repeat="com in comidas" class="list-group-item {{com.estado==='DISPONIBLE' ? 'active' : ''}}">
+                    {{com.nombre}}<span class="badge">{{com.precio| currency}}</span>
+                    <button type="button" ng-disabled="com.estado === 'AGOTADO'"  ng-click="updateComida(com)" class="btn btn-danger">Agotado</button>
                 </li>
             </ul>
+        </div>
+        <div id="footermsg" ng-if="mostarMensaje">
+            <div id="msg" style="text-shadow: 10px 5px 5px #000;"></div>
         </div>
     </h:body>    
 </html>

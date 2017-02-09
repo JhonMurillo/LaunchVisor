@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:h="http://java.sun.com/jsf/html"   ng-app="menu" ng-controller="MenuCtrl">
+
+    <h:head>
+        <title>({{comidas.length}}) MENU</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular.min.js"></script>
+        <script src=" http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"/>
+
+        <style>
+            #footericons {
+                text-align:center;
+                margin: 0 auto;
+                padding:30px;
+                bottom: 100px;
+                position: fixed;
+                width: 100%;
+            }
+
+            #footermsg{
+                text-align:center;
+                margin: 0 auto;
+                padding-top: 30px;
+                padding-bottom: 30px;
+                bottom: 0px;
+                position: fixed;
+                width: 100%;
+                height: auto;
+                background-color: red;
+                font-size: 50px;
+                color: white;
+                font-weight: bold;
+            }
+            #footericons ul li,#footermsg div {
+                list-style-type: none;
+                text-align:center;
+                margin-left:5px;
+            }
+            #footericons ul li:hover{
+                -webkit-transition: all 1s ease-in-out;
+                -moz-transition: all 1s ease-in-out;
+                -ms-transition: all 1s ease-in-out;
+                -o-transition: all 1s ease-in-out;
+                transition: all 1s ease-in-out;
+                text-shadow: 10px 5px 5px #000;
+            } 
+        </style>
+        <script>
+                    $(document).ready(function () {
+                        $("#footericons a").hover(function () {
+                            $("#footericons a img").not($("img", this)).stop().fadeTo(250, "0.1");
+                        }, function () {
+                            $("#footericons a img").stop().fadeTo(250, "1.0");
+                        });
+                    });
+        </script> 
+        <script>
+                    var menu = angular.module("menu", []);
+                    menu.controller("MenuCtrl", function ($scope, $http, $timeout, $filter) {
+                        $scope.comidas = [];
+                        $scope.mensajes = ["Restaurate El Fogon Olayero", "Bienvenidos Apreciados Clientes"];
+                        $scope.mostarAgotados = false;
+                        $scope.mostarMensaje = false;
+                        var num = 1;
+                        if (typeof (Storage) !== "undefined") {
+                            if (localStorage.getItem("mostarAgotados") === null || localStorage.getItem("mostarAgotados") === undefined) {
+                                localStorage.setItem("mostarAgotados", $scope.mostarAgotados);
+                            } else {
+                                if (localStorage.getItem("mostarAgotados") === "true") {
+                                    $scope.mostarAgotados = true;
+                                } else if (localStorage.getItem("mostarAgotados") === "false") {
+                                    $scope.mostarAgotados = false;
+                                } else {
+                                    $scope.mostarAgotados = localStorage.getItem("mostarAgotados");
+                                }
+                            }
+
+                            if (localStorage.getItem("mostarMensaje") === null) {
+                                localStorage.setItem("mostarMensaje", $scope.mostarMensaje);
+                            } else {
+                                if (localStorage.getItem("mostarMensaje") === "true") {
+                                    $scope.mostarMensaje = true;
+                                } else if (localStorage.getItem("mostarMensaje") === "false") {
+                                    $scope.mostarMensaje = false;
+                                } else {
+                                    $scope.mostarMensaje = localStorage.getItem("mostarMensaje");
+                                }
+                            }
+
+                            if (localStorage.getItem("mensajes") === null) {
+                                localStorage.setItem("mensajes", JSON.stringify($scope.mensajes));
+                            } else {
+                                $scope.mensajes = JSON.parse(localStorage.getItem("mensajes"));
+                            }
+                        } else {
+                            alert("Sorry, your browser does not support Web Storage...");
+                        }
+
+                        $scope.getComidas = function () {
+                            $http.get("api/comida")
+                                    .success(function (data) {
+                                        $scope.comidas = data;
+                                    });
+                        };
+                        $scope.getComidasAgotados = function () {
+                            $http.get("api/comida/disponible")
+                                    .success(function (data) {
+                                        $scope.comidas = data;
+                                    });
+                        };
+                        $scope.activateRealtime = function () {
+                            $scope.fecha = $filter("date")(new Date(), "dd/MM/yyyy hh:mm:ss a");
+                            if (typeof (Storage) !== "undefined") {
+                                if (localStorage.getItem("mostarAgotados") === null) {
+                                    localStorage.setItem("mostarAgotados", $scope.mostarAgotados);
+                                } else {
+                                    if (localStorage.getItem("mostarAgotados") === "true") {
+                                        $scope.mostarAgotados = true;
+                                    } else if (localStorage.getItem("mostarAgotados") === "false") {
+                                        $scope.mostarAgotados = false;
+                                    } else {
+                                        $scope.mostarAgotados = localStorage.getItem("mostarAgotados");
+                                    }
+
+                                    if (localStorage.getItem("mostarMensaje") === null) {
+                                        localStorage.setItem("mostarMensaje", $scope.mostarMensaje);
+                                    } else {
+                                        if (localStorage.getItem("mostarMensaje") === "true") {
+                                            $scope.mostarMensaje = true;
+                                        } else if (localStorage.getItem("mostarMensaje") === "false") {
+                                            $scope.mostarMensaje = false;
+                                        } else {
+                                            $scope.mostarMensaje = localStorage.getItem("mostarMensaje");
+                                        }
+                                    }
+
+
+                                    if (localStorage.getItem("mensajes") === null) {
+                                        localStorage.setItem("mensajes", JSON.stringify($scope.mensajes));
+                                    } else {
+                                        $scope.mensajes = JSON.parse(localStorage.getItem("mensajes"));
+                                    }
+                                }
+                            } else {
+                                console.log("Sorry, your browser does not support Web Storage...");
+                            }
+                            if ($scope.mostarAgotados) {
+                                $scope.getComidas();
+                            } else {
+                                $scope.getComidasAgotados();
+                            }
+                            $timeout($scope.activateRealtime, 1000);
+                        };
+                        $scope.activateMensajes = function () {
+
+                            if (num - 1 === $scope.mensajes.length) {
+                                num = 1;
+                            }
+                            if ($scope.mensajes.length === 1) {
+                                $timeout($("#msg").fadeIn(1000));
+                                $("#msg").text($scope.mensajes[num - 1]);
+                                $timeout($scope.activateMensajes, 1000);
+                            }
+
+                            if ($scope.mensajes.length > num - 1) {
+                                $timeout($("#msg").fadeIn(1000));
+                                $("#msg").text($scope.mensajes[num - 1]);
+                                num++;
+                                $timeout($scope.activateMensajes, 10000);
+                                $timeout($scope.ocultar, 9000);
+                            }
+
+                        };
+                        $scope.ocultar = function () {
+                            $("#msg").fadeOut(1000);
+                        };
+
+                        $scope.activateRealtime();
+                        $scope.activateMensajes();
+                    });
+        </script>
+    </h:head>
+    <h:body>
+        <div  class="container">
+            <h2>Comidas</h2><div id="fecha">{{fecha}}</div>
+            <div style="max-height: 1000px;height: 550px;overflow-y: scroll;">
+                <ul class="list-group">
+                    <li ng-repeat="com in comidas" style="font-size: 20px" class="list-group-item {{com.estado==='DISPONIBLE' ? 'active' :''}}">
+                        {{com.nombre}}<span style="font-size: 20px" class="badge">{{com.estado==='DISPONIBLE' ? '' : com.estado}}</span><span  style="font-size: 25px" class="badge">{{com.precio| currency}}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--        <div id="footericons">
+        
+                    <a href="#Facebook" target="_blank"><img src="http://2.bp.blogspot.com/-BRd7COEx2NY/U17dmr_a0UI/AAAAAAAAERc/uMJTIdB_Xcg/s1600/facebook.pn " style="margin-right:15px;"/></a>
+        
+                    <a href="#Twitter " target="_blank"><img src="http://2.bp.blogspot.com/-fTXxPElM0DQ/U17dnd5K0oI/AAAAAAAAERs/LAWWixV7WVE/s1600/twitter.png" style="margin-right:15px;"/></a>
+        
+                    <a href="#GooglePlus " target="_blank"><img src="http://4.bp.blogspot.com/-Ab9k7fppiwM/U17dmgyfQ8I/AAAAAAAAESA/UWGf6dP3Dig/s1600/google+.png" style="margin-right:15px;"/></a>
+        
+                    <a href="#Youtube " target="_blank"><img src="http://4.bp.blogspot.com/-RpB2RXLxofA/U17dn86AgCI/AAAAAAAAER4/rPKl3p1rofw/s1600/youtube.png" style="margin-right:15px;"/></a>
+        
+                    <a href="#LinkedIn " target="_blank"><img src="http://1.bp.blogspot.com/-S_TWjgjKu6g/U17dmqyoN2I/AAAAAAAAERg/0kQTiSS6zwM/s1600/linkedin.png" style="margin-right:15px;"/></a>
+        
+                    <a href="#Feedburner " target="_blank"><img src="http://1.bp.blogspot.com/-qAjoV0wKcF0/U17dnSSdquI/AAAAAAAAERw/UYV0-lrGtCc/s1600/rss.png" style="margin-right:15px;"/></a>
+                </div>-->
+        <div id="footermsg" ng-if="mostarMensaje">
+            <div id="msg" style="text-shadow: 10px 5px 5px #000;"></div>
+        </div>
+    </h:body>    
+</html>

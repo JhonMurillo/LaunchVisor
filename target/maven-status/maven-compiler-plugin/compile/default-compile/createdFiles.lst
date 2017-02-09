@@ -1,9 +1,14 @@
 com\launchVisor\services\TaskService.class
 com\launchVisor\config\WebMvcConfiguration.class
 com\launchVisor\config\CORSFilter.class
-com\launchVisor\controllers\TaskController.class
+com\launchVisor\domain\Comida.class
 com\launchVisor\services\TaskExecutor$1.class
+com\launchVisor\controllers\ComidaController.class
+com\launchVisor\domain\TaskStatus.class
+com\launchVisor\services\ComidaService.class
+com\launchVisor\domain\EstadoComida.class
+com\launchVisor\services\ComidaExecutor.class
+com\launchVisor\controllers\TaskController.class
 com\launchVisor\services\TaskExecutor.class
 com\launchVisor\config\AppInit.class
 com\launchVisor\domain\Task.class
-com\launchVisor\domain\TaskStatus.class
