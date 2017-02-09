@@ -70,11 +70,11 @@
             <version>3.1.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.faces/javax.faces-api -->
-        <dependency>
+<!--        <dependency>
             <groupId>javax.faces</groupId>
             <artifactId>javax.faces-api</artifactId>
             <version>2.1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.glassfish.main.extras</groupId>
             <artifactId>glassfish-embedded-all</artifactId>
